@@ -1,107 +1,161 @@
 const express = require("express")
 const app = express()
+
 const PORT = 3000
 
-
 app.use(express.json())
+let boards = [
+    {
+        id: 1,
+        displayId: 1,
+        title: "title3",
+        content: "content3",
+        createdAt: "2025-08-01"
+    },
+    {
+        id: 2,
+        displayId: 2,
+        title: "title323",
+        content: "content3",
+        createdAt: "2025-08-01"
+    },
+    {
+        id: 3,
+        displayId: 3,
+        title: "title333",
+        content: "content3",
+        createdAt: "2025-08-01"
+    },
+]
+let initId = 4
 
-// 가상의 사용자 배열
-let users = [
-    { id: 1, name: "홍길동" },
-    { id: 2, name: "김철수" },
-    { id: 3, name: "홍경복" }
-];
 
-app.post("/users", (req, res) => {
+app.post("/boards", (req, res) => {
     try {
-        const newUser = req.body
-        users.push({
-            id: Date.now(),
-            ...newUser
-        })
-        res.status(201).json({ message: "사용자 추가완료", users })
-    } catch (error) {
-        console.error("사용자 추가중 오류", error)
-        res.status(500).json({ message: "서버 오류 발생" })
+        const newBoard = {
+            id: initId++,
+            displayId: boards.length + 1,
+            title: req.body.title,
+            content: req.body.content,
+            createdAt: new Date().toISOString()
+        }
+        boards.push(newBoard)
 
+        res.status(201).json({ message: "게시글 생성 완료", boards })
+    } catch (error) {
+        console.error("게시글 생성중 오류", error)
+        res.status(500).json({ message: "서버 오류" })
     }
 })
 
-app.get("/users", (req, res) => {
+app.get("/boards", (req, res) => {
     try {
-        res.json(users)
-        res.status(200).json({ message: "성공적 가져오기" })
+
+        res.status(201).json({ message: "게시글 생성 완료", boards })
     } catch (error) {
-        console.error("사용자 조회중 오류", error)
-        res.status(500).json({ message: "서버 내부 오류 발생" })
+        console.error("게시글 생성중 오류", error)
+        res.status(500).json({ message: "서버 오류" })
     }
 })
 
-
-app.get("/users/:id", (req, res) => {
+app.get("/boards/:id", (req, res) => {
     try {
-        const userId = Number(req.params.id)
+        const userdId = Number(req.params.id);
 
-        const index = users.findIndex(u => u.id === userId)
+        const index = boards.findIndex(u => u.id === userdId);
 
         if (index === -1) {
-            return res.status(404).json({ message: "조회할 사용자가 없습니다" })
+            return res.status(404).json({ message: "조회할 게시글이 없습니다" });
         }
-        res.status(200).json({ message: "1명 데이터 조회 완료", user: users[index] })
+
+        res.status(200).json({ message: "1개 게시글 조회 완료", boards: boards[index] });
     } catch (error) {
-        console.error("사용자 1명  조회 중 오류", error)
-        res.status(500).json({ message: "서버 내부 오류 발생" })
+        console.error("게시글 1개 조회 중 오류", error);
+        res.status(500).json({ message: "서버 내부 오류 발생" });
     }
 })
 
-app.put("/users/:id", (req, res) => {
+app.delete("/boards/:id", (req, res) => {
     try {
-        const userId = Number(req.params.id)
+        const userdId = Number(req.params.id);
 
-        const index = users.findIndex(u => u.id === userId)
+        const index = boards.findIndex(u => u.id === userdId);
 
         if (index === -1) {
-            return res.status(404).json({ message: "조회할 사용자가 없습니다" })
+            return res.status(404).json({ message: "게시글 삭제중 오류" });
         }
-        const updateData = req.body
-
-        users[index] = {
-            ...users[index],
-            ...updateData
-        }
-        res.status(200).json({ message: "1명 데이터 조회 완료", user: users[index] })
+        boards.splice(index, 1)
+        res.status(200).json({ message: "게시글 1개 삭제완료", boards })
     } catch (error) {
-        console.error("사용자 1명  조회 중 오류", error)
-        res.status(500).json({ message: "서버 내부 오류 발생" })
+        console.error("게시글 1개 조회 중 오류", error);
+        res.status(500).json({ message: "서버 내부 오류 발생" });
     }
 })
-
-app.delete("/users/:id", (req, res) => {
+//게시글 제목 수정하기
+app.patch("/boards/:id/title", (req, res) => {
     try {
-        const userId = Number(req.params.id)
-        const index = users.findIndex(u => u.id == userId)
+        const userdId = Number(req.params.id);
+
+        const index = boards.findIndex(u => u.id === userdId);
+
         if (index === -1) {
-            return res.status(404).json({ message: "삭제할 사용자가 없습니다." })
+            return res.status(404).json({ message: "일부 게시글 수정 중 아이디가 없음" })
         }
-        user.splice(index, 1)
-        res.status(201).json({ message: "사용자 1명 삭제 완료", users })
+        const { title } = req.body
+
+        if (typeof title !== 'string' || title.trim() === "") {
+            return res.status(400).json({
+                message: "타이틀은 비어있지않은 문자열이어야합니다"
+            })
+        }
+        boards[index] = {
+            ...boards[index],
+            title: title.trim()
+        }
+        res.status(200).json({ message: "게시글 제목 수정하기 완료", board: boards[index] })
     } catch (error) {
-        console.error("사용자 삭제중 오류")
-        res.status(500).json({ message: "서버 내부 오류 발생" })
+        console.error("게시글 1개 조회 중 오류", error);
+        res.status(500).json({ message: "서버 내부 오류 발생" });
     }
+
 })
+//게시글 컨텐츠 수정하기
+app.patch("/boards/:id/content", (req, res) => {
+    try {
+        const boardId = Number(req.params.id);
 
+        const index = boards.findIndex(b => b.id === boardId);
 
+        if (index === -1) {
+            return res.status(404).json({ message: "컨텐츠 수정 중 아이디가 없음" });
+        }
 
+        const { content } = req.body;
+
+        if (typeof content !== 'string' || content.trim() === "") {
+            return res.status(400).json({
+                message: "컨텐츠는 비어있지 않은 문자열이어야 합니다"
+            });
+        }
+
+        boards[index] = {
+            ...boards[index],
+            content: content.trim()
+        };
+
+        res.status(200).json({ message: "게시글 컨텐츠 수정하기 완료", board: boards[index] });
+    } catch (error) {
+        console.error("게시글 컨텐츠 수정 중 오류", error);
+        res.status(500).json({ message: "서버 내부 오류 발생" });
+    }
+});
 
 
 
 
 app.get("/", (req, res) => {
-    res.send("hello world")
+    res.send("Hello, woojin")
 })
-//req 요청 res 응답
-
 app.listen(PORT, () => {
-    console.log("Server is running")
+    console.log("Server running")
 })
