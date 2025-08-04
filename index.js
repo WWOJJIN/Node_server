@@ -76,6 +76,21 @@ app.put("/users/:id", (req, res) => {
     }
 })
 
+app.delete("/users/:id", (req, res) => {
+    try {
+        const userId = Number(req.params.id)
+        const index = users.findIndex(u => u.id == userId)
+        if (index === -1) {
+            return res.status(404).json({ message: "삭제할 사용자가 없습니다." })
+        }
+        user.splice(index, 1)
+        res.status(201).json({ message: "사용자 1명 삭제 완료", users })
+    } catch (error) {
+        console.error("사용자 삭제중 오류")
+        res.status(500).json({ message: "서버 내부 오류 발생" })
+    }
+})
+
 
 
 
