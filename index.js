@@ -38,6 +38,49 @@ app.get("/users", (req, res) => {
 })
 
 
+app.get("/users/:id", (req, res) => {
+    try {
+        const userId = Number(req.params.id)
+
+        const index = users.findIndex(u => u.id === userId)
+
+        if (index === -1) {
+            return res.status(404).json({ message: "조회할 사용자가 없습니다" })
+        }
+        res.status(200).json({ message: "1명 데이터 조회 완료", user: users[index] })
+    } catch (error) {
+        console.error("사용자 1명  조회 중 오류", error)
+        res.status(500).json({ message: "서버 내부 오류 발생" })
+    }
+})
+
+app.put("/users/:id", (req, res) => {
+    try {
+        const userId = Number(req.params.id)
+
+        const index = users.findIndex(u => u.id === userId)
+
+        if (index === -1) {
+            return res.status(404).json({ message: "조회할 사용자가 없습니다" })
+        }
+        const updateData = req.body
+
+        users[index] = {
+            ...users[index],
+            ...updateData
+        }
+        res.status(200).json({ message: "1명 데이터 조회 완료", user: users[index] })
+    } catch (error) {
+        console.error("사용자 1명  조회 중 오류", error)
+        res.status(500).json({ message: "서버 내부 오류 발생" })
+    }
+})
+
+
+
+
+
+
 
 app.get("/", (req, res) => {
     res.send("hello world")
